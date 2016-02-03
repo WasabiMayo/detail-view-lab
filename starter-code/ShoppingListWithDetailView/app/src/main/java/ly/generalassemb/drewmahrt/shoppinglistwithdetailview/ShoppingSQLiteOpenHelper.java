@@ -29,6 +29,7 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
     public static final String COL_ITEM_PRICE = "PRICE";
     public static final String COL_ITEM_DESCRIPTION = "DESCRIPTION";
     public static final String COL_ITEM_TYPE = "TYPE";
+    public static final String COL_ITEM_QUANTITY = "QUANTITY";
 
     public static final String[] SHOPPING_COLUMNS = {COL_ID,COL_ITEM_NAME,COL_ITEM_DESCRIPTION,COL_ITEM_PRICE,COL_ITEM_TYPE};
 
@@ -39,10 +40,19 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                     COL_ITEM_NAME + " TEXT, " +
                     COL_ITEM_DESCRIPTION + " TEXT, " +
                     COL_ITEM_PRICE + " TEXT, " +
-                    COL_ITEM_TYPE + " TEXT )";
+                    COL_ITEM_TYPE + " TEXT) ";
 
-    public ShoppingSQLiteOpenHelper(Context context) {
+    private ShoppingSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    private static ShoppingSQLiteOpenHelper instance;
+
+    public static ShoppingSQLiteOpenHelper getInstance(Context context){
+        if(instance == null){
+            instance = new ShoppingSQLiteOpenHelper(context.getApplicationContext());
+        }
+        return instance;
     }
 
     @Override
@@ -54,6 +64,18 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + SHOPPING_LIST_TABLE_NAME);
         this.onCreate(db);
+        //db.execSQL("ALTER TABLE " + SHOPPING_LIST_TABLE_NAME + " ADD COLUMN " + COL_ITEM_QUANTITY + " TEXT");
+        //fillColumn(db);
+    }
+
+    public void fillColumn(SQLiteDatabase db){
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='3 pounds' WHERE _id=" + 1 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='1L' WHERE _id=" + 2 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='3 boxes' WHERE _id=" + 3 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='1 bag' WHERE _id=" + 4 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='3 pounds' WHERE _id=" + 5 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='5' WHERE _id=" + 6 + "");
+        db.execSQL("UPDATE "+ SHOPPING_LIST_TABLE_NAME + " SET " + COL_ITEM_QUANTITY + "='1' WHERE _id=" + 7 + "");
     }
 
     //Add new itinerary list
@@ -108,5 +130,30 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                 null); // h. limit
 
         return cursor;
+    }
+
+    public String[] getDetailsById(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(SHOPPING_LIST_TABLE_NAME, // a. table
+                SHOPPING_COLUMNS, // b. column names
+                COL_ID + " = ?", // c. selections
+                new String[]{String.valueOf(id)}, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
+
+        if(cursor.moveToFirst()){
+            String[] details = new String[]{
+                    cursor.getString(cursor.getColumnIndex(COL_ITEM_NAME)),
+                    cursor.getString(cursor.getColumnIndex(COL_ITEM_DESCRIPTION)),
+                    cursor.getString(cursor.getColumnIndex(COL_ITEM_PRICE)),
+                    cursor.getString(cursor.getColumnIndex(COL_ITEM_TYPE))
+            };
+              return details;
+        }else{
+            return new String[]{ "Data not found" };
+        }
     }
 }

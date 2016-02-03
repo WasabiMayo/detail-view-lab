@@ -13,4 +13,13 @@
         android:id="@+id/shopping_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></ListView>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ADD MORE ITEMS"
+        android:id="@+id/button"
+        android:layout_alignBottom="@+id/shopping_list_view"
+        android:layout_alignRight="@+id/shopping_list_view"
+        android:layout_alignEnd="@+id/shopping_list_view" />
 </RelativeLayout>
